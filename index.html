@@ -1,586 +1,226 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NOVA STRIKER LEGENDS - Ranked 2.5D Shooter</title>
+    <title>NOVA STRIKER - Space Shooter 2.5D</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div id="gameContainer">
-        <!-- Login Screen -->
-        <div id="loginScreen" class="screen active">
-            <div class="animated-bg">
-                <div class="stars"></div>
-                <div class="twinkling"></div>
-                <div class="clouds"></div>
-            </div>
-            
-            <div class="login-container">
-                <div class="game-logo">
-                    <i class="fas fa-rocket"></i>
-                    <h1>NOVA STRIKER</h1>
-                    <span class="elite-badge">RANKED SEASON 7</span>
-                    <div class="version">v3.5.0</div>
-                </div>
-                
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- UI Overlay -->
+        <div id="uiOverlay">
+            <!-- Login Screen -->
+            <div id="loginScreen" class="screen">
                 <div class="login-box">
-                    <h2>WELCOME BACK, LEGEND</h2>
-                    <p>Login to continue your ranked journey</p>
+                    <h1>🚀 NOVA STRIKER</h1>
+                    <p class="subtitle">SEASON 7 - RANKED</p>
                     
-                    <div class="rank-preview">
-                        <div class="rank-tier">BRONZE → ULTRA GRAND MASTER</div>
-                        <div class="rank-icons">
-                            <i class="fas fa-medal" style="color: #cd7f32;"></i>
-                            <i class="fas fa-arrow-right"></i>
-                            <i class="fas fa-crown" style="color: #ffd700;"></i>
-                            <i class="fas fa-arrow-right"></i>
-                            <i class="fas fa-star" style="color: #b22222;"></i>
-                        </div>
+                    <div class="rank-show">
+                        <span>BRONZE</span> → <span>ULTRA GRAND MASTER</span>
                     </div>
-                    
-                    <div class="social-login">
-                        <button id="fbLogin" class="social-btn facebook">
-                            <i class="fab fa-facebook-f"></i>
-                            <span>Continue with Facebook</span>
-                        </button>
-                        
-                        <button id="googleLogin" class="social-btn google">
-                            <i class="fab fa-google"></i>
-                            <span>Continue with Google</span>
-                        </button>
-                        
-                        <button id="xLogin" class="social-btn x">
-                            <i class="fab fa-x-twitter"></i>
-                            <span>Continue with X</span>
-                        </button>
-                        
-                        <div class="divider">
-                            <span>or</span>
-                        </div>
-                        
-                        <button id="guestLogin" class="social-btn guest">
-                            <i class="fas fa-user-astronaut"></i>
-                            <span>Play as Guest</span>
-                        </button>
+
+                    <div class="login-buttons">
+                        <button class="btn-facebook" onclick="login('facebook')">Facebook</button>
+                        <button class="btn-google" onclick="login('google')">Google</button>
+                        <button class="btn-x" onclick="login('x')">X / Twitter</button>
+                        <button class="btn-guest" onclick="login('guest')">Guest</button>
                     </div>
-                    
-                    <div class="login-features">
-                        <div class="feature">
-                            <i class="fas fa-trophy"></i>
-                            <span>8 Rank Tiers</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-level-up-alt"></i>
-                            <span>Level 1-100</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-paint-roller"></i>
-                            <span>50+ Skins</span>
-                        </div>
-                        <div class="feature">
-                            <i class="fas fa-gem"></i>
-                            <span>Lucky Spin</span>
-                        </div>
+
+                    <div class="features">
+                        <span>🏆 8 Rank Tiers</span>
+                        <span>🎨 50+ Skins</span>
+                        <span>📊 Level 1-100</span>
+                        <span>🎰 Lucky Spin</span>
                     </div>
-                </div>
-                
-                <div class="server-status">
-                    <span class="status-dot online"></span>
-                    Server: Online
-                    <span class="players-online">• 45,678 Legends Online</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Main Game UI -->
-        <div id="gameUI" class="hidden">
-            <canvas id="gameCanvas"></canvas>
-            
-            <!-- UI Overlay -->
-            <div id="uiOverlay">
-                <!-- Top Navigation Bar -->
-                <div id="topNav">
-                    <div class="nav-left">
-                        <button id="menuToggle" class="nav-btn">
-                            <i class="fas fa-bars"></i>
-                        </button>
-                        
-                        <!-- Rank & Level Display -->
-                        <div class="rank-level-display">
-                            <div class="rank-badge" id="currentRankBadge">
-                                <i class="fas fa-shield-alt"></i>
-                                <span id="currentRank">BRONZE</span>
-                                <span id="currentDivision">III</span>
-                            </div>
-                            
-                            <div class="level-display">
-                                <div class="level-number" id="playerLevel">1</div>
-                                <div class="level-progress">
-                                    <div class="progress-bar">
-                                        <div id="levelProgress" class="progress-fill" style="width: 0%"></div>
-                                    </div>
-                                    <span id="levelXp">0/1000 XP</span>
-                                </div>
-                            </div>
+            <!-- Main Game HUD -->
+            <div id="gameHUD" class="hidden">
+                <!-- Top Bar -->
+                <div class="top-bar">
+                    <div class="player-info">
+                        <span id="playerName">Guest</span>
+                        <span id="playerRank">Bronze III</span>
+                    </div>
+                    <div class="level-info">
+                        <span>Level <span id="level">1</span></span>
+                        <div class="xp-bar">
+                            <div id="xpFill" style="width:0%"></div>
                         </div>
                     </div>
-                    
-                    <div class="nav-center">
-                        <div class="currency-display">
-                            <div class="currency-item">
-                                <i class="fas fa-coins" style="color: #FFD700;"></i>
-                                <span id="goldAmount">1000</span>
-                            </div>
-                            <div class="currency-item">
-                                <i class="fas fa-gem" style="color: #4AE5FF;"></i>
-                                <span id="diamondAmount">500</span>
-                            </div>
-                            <button id="topUpBtn" class="nav-btn highlight">
-                                <i class="fas fa-plus-circle"></i>
-                                <span>Top Up</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="nav-right">
-                        <button id="profileBtn" class="nav-btn">
-                            <i class="fas fa-user-circle"></i>
-                        </button>
-                        <button id="settingsBtn" class="nav-btn">
-                            <i class="fas fa-cog"></i>
-                        </button>
+                    <div class="currency">
+                        <span>💰 <span id="gold">1000</span></span>
+                        <span>💎 <span id="diamond">500</span></span>
+                        <span>🔮 <span id="crystal">200</span></span>
                     </div>
                 </div>
 
-                <!-- Main Menu Sidebar -->
-                <div id="mainMenu" class="sidebar hidden">
-                    <div class="sidebar-header">
-                        <h3>MAIN MENU</h3>
-                        <button id="closeMenu" class="close-btn">
-                            <i class="fas fa-times"></i>
-                        </button>
+                <!-- Game Stats -->
+                <div class="game-stats">
+                    <div>💯 Score: <span id="score">0</span></div>
+                    <div>🌊 Wave: <span id="wave">1</span></div>
+                    <div>❤️ Health: <span id="health">100</span></div>
+                    <div>🛡️ Shield: <span id="shield">3</span></div>
+                </div>
+
+                <!-- Menu Button -->
+                <button id="menuBtn" class="menu-btn">☰</button>
+
+                <!-- Side Menu -->
+                <div id="sideMenu" class="side-menu hidden">
+                    <div class="menu-header">
+                        <h3>MENU</h3>
+                        <button onclick="toggleMenu()">✕</button>
                     </div>
-                    
                     <div class="menu-items">
-                        <div class="menu-item active" data-menu="home">
-                            <i class="fas fa-home"></i>
-                            <span>Home</span>
-                        </div>
-                        <div class="menu-item" data-menu="ranked">
-                            <i class="fas fa-trophy"></i>
-                            <span>Ranked Match</span>
-                            <span class="menu-badge">REQUIRED</span>
-                        </div>
-                        <div class="menu-item" data-menu="arsenal">
-                            <i class="fas fa-crosshairs"></i>
-                            <span>Arsenal</span>
-                        </div>
-                        <div class="menu-item" data-menu="skins">
-                            <i class="fas fa-paint-roller"></i>
-                            <span>Skins</span>
-                        </div>
-                        <div class="menu-item" data-menu="spin">
-                            <i class="fas fa-sync-alt"></i>
-                            <span>Lucky Spin</span>
-                        </div>
-                        <div class="menu-item" data-menu="bundles">
-                            <i class="fas fa-gift"></i>
-                            <span>Bundles</span>
-                        </div>
-                        <div class="menu-item" data-menu="leaderboard">
-                            <i class="fas fa-ranking-star"></i>
-                            <span>Leaderboard</span>
-                        </div>
-                        <div class="menu-item" data-menu="shop">
-                            <i class="fas fa-store"></i>
-                            <span>Shop</span>
-                        </div>
-                    </div>
-                    
-                    <div class="sidebar-footer">
-                        <div class="player-quick-info">
-                            <img id="sidebarAvatar" src="https://via.placeholder.com/40x40/2a2a4a/ffffff?text=User" alt="avatar">
-                            <div>
-                                <div id="sidebarName">Guest_1234</div>
-                                <div class="rank-text" id="sidebarRank">Bronze III</div>
-                            </div>
-                        </div>
+                        <button onclick="showPanel('profile')">👤 Profile</button>
+                        <button onclick="showPanel('ranked')">🏆 Ranked</button>
+                        <button onclick="showPanel('arsenal')">🔫 Arsenal</button>
+                        <button onclick="showPanel('skins')">🎨 Skins</button>
+                        <button onclick="showPanel('spin')">🎰 Lucky Spin</button>
+                        <button onclick="showPanel('shop')">🛒 Shop</button>
+                        <button onclick="showPanel('topup')">💎 Top Up</button>
+                        <button onclick="logout()">🚪 Logout</button>
                     </div>
                 </div>
 
                 <!-- Profile Panel -->
-                <div id="profilePanel" class="side-panel hidden">
+                <div id="profilePanel" class="panel hidden">
                     <div class="panel-header">
-                        <h3><i class="fas fa-user-circle"></i> PLAYER PROFILE</h3>
-                        <button class="close-panel">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        <h3>PROFILE</h3>
+                        <button onclick="hidePanel('profile')">✕</button>
                     </div>
-                    
-                    <div class="profile-content">
-                        <div class="profile-avatar-section">
-                            <div class="profile-avatar">
-                                <img id="profileAvatar" src="https://via.placeholder.com/80x80/2a2a4a/ffffff?text=User" alt="avatar">
-                                <button id="changeAvatarBtn" class="small-btn">
-                                    <i class="fas fa-camera"></i>
-                                </button>
-                            </div>
-                            
-                            <div class="profile-name-section">
-                                <div class="name-display">
-                                    <h2 id="profileDisplayName">Guest_1234</h2>
-                                    <button id="editNameBtn" class="icon-btn">
-                                        <i class="fas fa-pencil-alt"></i>
-                                    </button>
-                                </div>
-                                <div class="profile-rank-badge">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <span id="profileRank">Bronze III</span>
-                                </div>
-                            </div>
+                    <div class="panel-content">
+                        <div class="profile-avatar">👤</div>
+                        <div class="profile-name">
+                            <span id="profileName">Guest</span>
+                            <button onclick="showChangeName()">✏️</button>
                         </div>
-                        
-                        <!-- Edit Name Modal -->
-                        <div id="editNameModal" class="mini-modal hidden">
-                            <div class="mini-modal-content">
-                                <h4>Change Username</h4>
-                                <p class="name-change-info" id="nameChangeInfo">First change is FREE!</p>
-                                <input type="text" id="newNameInput" maxlength="20" placeholder="Enter new username">
-                                <div class="name-cost" id="nameCost">
-                                    <i class="fas fa-gem"></i>
-                                    <span id="nameCostValue">0</span>
-                                </div>
-                                <div class="mini-modal-buttons">
-                                    <button id="confirmNameBtn" class="confirm-btn">Change</button>
-                                    <button id="cancelNameBtn" class="cancel-btn">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-stats-grid">
-                            <div class="stat-box">
-                                <span class="stat-icon">📊</span>
-                                <div>
-                                    <span class="stat-value" id="profileLevel">1</span>
-                                    <span class="stat-label">Level</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-box">
-                                <span class="stat-icon">⭐</span>
-                                <div>
-                                    <span class="stat-value" id="profileXP">0</span>
-                                    <span class="stat-label">XP</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-box">
-                                <span class="stat-icon">🏆</span>
-                                <div>
-                                    <span class="stat-value" id="profileWins">0</span>
-                                    <span class="stat-label">Wins</span>
-                                </div>
-                            </div>
-                            
-                            <div class="stat-box">
-                                <span class="stat-icon">💀</span>
-                                <div>
-                                    <span class="stat-value" id="profileKills">0</span>
-                                    <span class="stat-label">Kills</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-details">
-                            <div class="detail-row">
-                                <span class="detail-label">Join Date:</span>
-                                <span id="profileJoinDate">2024-01-01</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Last Match:</span>
-                                <span id="profileLastMatch">Never</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Win Rate:</span>
-                                <span id="profileWinRate">0%</span>
-                            </div>
-                            <div class="detail-row">
-                                <span class="detail-label">Name Changes:</span>
-                                <span id="nameChangeCount">0</span>
-                            </div>
-                        </div>
-                        
-                        <div class="profile-actions">
-                            <button id="viewStatsBtn" class="profile-action-btn">
-                                <i class="fas fa-chart-line"></i> Detailed Stats
-                            </button>
+                        <div class="profile-stats">
+                            <div>Level: <span id="profileLevel">1</span></div>
+                            <div>XP: <span id="profileXP">0</span>/<span id="profileXPNext">1000</span></div>
+                            <div>Rank: <span id="profileRank">Bronze III</span></div>
+                            <div>Kills: <span id="profileKills">0</span></div>
+                            <div>Wins: <span id="profileWins">0</span></div>
+                            <div>Matches: <span id="profileMatches">0</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Ranked Match Panel -->
-                <div id="rankedPanel" class="side-panel hidden">
-                    <div class="panel-header ranked-header">
-                        <h3><i class="fas fa-trophy"></i> RANKED MATCH</h3>
-                        <button class="close-panel">
-                            <i class="fas fa-times"></i>
-                        </button>
+                <!-- Change Name Modal -->
+                <div id="nameModal" class="modal hidden">
+                    <div class="modal-content">
+                        <h3>Ganti Nama</h3>
+                        <p id="nameCost">Gratis (Pertama)</p>
+                        <input type="text" id="newName" maxlength="20" placeholder="Nama baru">
+                        <div class="modal-buttons">
+                            <button onclick="changeName()">Ganti</button>
+                            <button onclick="hideModal('nameModal')">Batal</button>
+                        </div>
                     </div>
-                    
-                    <div class="ranked-content">
-                        <!-- Current Rank Display -->
-                        <div class="current-rank-large">
-                            <div class="rank-icon-large" id="currentRankIcon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <div class="rank-info-large">
-                                <span class="rank-name" id="currentRankName">BRONZE</span>
-                                <span class="rank-division" id="currentRankDivision">DIVISION III</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Rank Progress -->
-                        <div class="rank-progress-container">
-                            <h4>RANK PROGRESS</h4>
-                            <div class="rank-progress-bar">
-                                <div id="rankProgressFill" class="rank-progress-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="rank-points">
-                                <span id="currentRP">0</span> / <span id="maxRP">100</span> RP
+                </div>
+
+                <!-- Ranked Panel -->
+                <div id="rankedPanel" class="panel hidden">
+                    <div class="panel-header">
+                        <h3>RANKED</h3>
+                        <button onclick="hidePanel('ranked')">✕</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="rank-current">
+                            <div class="rank-badge" id="rankBadge">🥉</div>
+                            <div>
+                                <div id="rankName">Bronze III</div>
+                                <div>RP: <span id="rankRP">0</span>/100</div>
                             </div>
                         </div>
-                        
-                        <!-- Rank Tiers -->
-                        <div class="rank-tiers-container">
-                            <h4>RANK TIERS</h4>
-                            <div class="rank-list">
-                                <div class="rank-tier-item" data-rank="bronze">
-                                    <i class="fas fa-shield-alt" style="color: #cd7f32;"></i>
-                                    <span>Bronze</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="gold">
-                                    <i class="fas fa-shield-alt" style="color: #ffd700;"></i>
-                                    <span>Gold</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="platinum">
-                                    <i class="fas fa-shield-alt" style="color: #e5e4e2;"></i>
-                                    <span>Platinum</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="diamond">
-                                    <i class="fas fa-gem" style="color: #b9f2ff;"></i>
-                                    <span>Diamond</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="heroic">
-                                    <i class="fas fa-star" style="color: #ff69b4;"></i>
-                                    <span>Heroic</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="master">
-                                    <i class="fas fa-crown" style="color: #9370db;"></i>
-                                    <span>Master</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="grandmaster">
-                                    <i class="fas fa-crown" style="color: #ff4500;"></i>
-                                    <span>Grand Master</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
-                                <div class="rank-tier-item" data-rank="ultragrandmaster">
-                                    <i class="fas fa-crown" style="color: #ff0000;"></i>
-                                    <span>Ultra Grand Master</span>
-                                    <span class="rank-div">I-III</span>
-                                </div>
+                        <div class="rank-progress">
+                            <div class="progress-bar">
+                                <div id="rankProgress" style="width:0%"></div>
                             </div>
                         </div>
-                        
-                        <!-- Play Ranked Button -->
-                        <button id="playRankedBtn" class="ranked-play-btn">
-                            <i class="fas fa-play"></i>
-                            PLAY RANKED
-                        </button>
-                        
-                        <div class="ranked-info">
-                            <p><i class="fas fa-info-circle"></i> Win: +20 RP | Loss: -10 RP</p>
-                            <p><i class="fas fa-level-up"></i> Level up requires Ranked matches</p>
+                        <div class="rank-list">
+                            <div class="rank-item bronze">🥉 Bronze I-III</div>
+                            <div class="rank-item gold">🥈 Gold I-III</div>
+                            <div class="rank-item platinum">🔷 Platinum I-III</div>
+                            <div class="rank-item diamond">💎 Diamond I-III</div>
+                            <div class="rank-item heroic">⭐ Heroic I-III</div>
+                            <div class="rank-item master">👑 Master I-III</div>
+                            <div class="rank-item grandmaster">🔥 Grand Master I-III</div>
+                            <div class="rank-item ultragrandmaster">✨ Ultra Grand Master I-III</div>
                         </div>
+                        <button class="play-btn" onclick="startRanked()">▶ PLAY RANKED</button>
                     </div>
                 </div>
 
                 <!-- Lucky Spin Panel -->
-                <div id="spinPanel" class="side-panel hidden">
-                    <div class="panel-header spin-header">
-                        <h3><i class="fas fa-sync-alt fa-spin"></i> LUCKY SPIN</h3>
-                        <button class="close-panel">
-                            <i class="fas fa-times"></i>
-                        </button>
+                <div id="spinPanel" class="panel hidden">
+                    <div class="panel-header">
+                        <h3>LUCKY SPIN</h3>
+                        <button onclick="hidePanel('spin')">✕</button>
                     </div>
-                    
-                    <div class="spin-content">
-                        <!-- Crystal Balance -->
+                    <div class="panel-content">
                         <div class="crystal-balance">
-                            <i class="fas fa-gem" style="color: #4AE5FF;"></i>
-                            <span class="balance-label">Your Crystals:</span>
-                            <span class="balance-amount" id="crystalBalance">500</span>
-                            <button id="topUpCrystalBtn" class="small-btn">
-                                <i class="fas fa-plus-circle"></i> Top Up
-                            </button>
+                            🔮 Crystals: <span id="crystalSpin">200</span>
                         </div>
-                        
-                        <!-- Spin Options dengan harga 19/180 -->
                         <div class="spin-options">
-                            <div class="spin-option" id="spin1x">
-                                <div class="spin-cost">
-                                    <i class="fas fa-gem"></i>
-                                    <span class="cost-amount">19</span>
-                                </div>
-                                <button class="spin-btn">SPIN 1X</button>
-                                <div class="spin-chance">Common - Legendary</div>
-                            </div>
-                            
-                            <div class="spin-option premium" id="spin10x">
-                                <div class="spin-cost">
-                                    <i class="fas fa-gem"></i>
-                                    <span class="cost-amount">180</span>
-                                    <span class="discount-badge">SAVE 10</span>
-                                </div>
-                                <button class="spin-btn">SPIN 10X</button>
-                                <div class="spin-chance">Guaranteed Rare+</div>
-                            </div>
+                            <button onclick="spin(1)" class="spin-btn">SPIN 1x (19 🔮)</button>
+                            <button onclick="spin(10)" class="spin-btn">SPIN 10x (180 🔮)</button>
                         </div>
-                        
-                        <!-- Bundle Categories -->
-                        <div class="bundle-categories">
-                            <button class="bundle-cat active" data-cat="all">All</button>
-                            <button class="bundle-cat" data-cat="weapons">Weapons</button>
-                            <button class="bundle-cat" data-cat="skins">Skins</button>
-                            <button class="bundle-cat" data-cat="charms">Charms</button>
-                            <button class="bundle-cat" data-cat="effects">Effects</button>
-                        </div>
-                        
-                        <!-- Bundle Grid -->
-                        <div class="bundle-grid" id="bundleGrid">
-                            <!-- Bundle items akan diisi JavaScript -->
-                        </div>
-                        
-                        <!-- Spin History -->
-                        <div class="spin-history">
-                            <h4>Recent Drops</h4>
-                            <div class="history-list" id="spinHistory"></div>
-                        </div>
+                        <div class="bundle-grid" id="bundleGrid"></div>
+                        <div class="spin-history" id="spinHistory"></div>
                     </div>
                 </div>
 
-                <!-- Top Up Modal -->
-                <div id="topUpModal" class="modal hidden">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h2>TOP UP CRYSTALS</h2>
-                            <button class="modal-close">
-                                <i class="fas fa-times"></i>
-                            </button>
+                <!-- Top Up Panel -->
+                <div id="topupPanel" class="panel hidden">
+                    <div class="panel-header">
+                        <h3>TOP UP</h3>
+                        <button onclick="hidePanel('topup')">✕</button>
+                    </div>
+                    <div class="panel-content">
+                        <div class="payment-methods">
+                            <button class="payment-btn active" onclick="selectPayment('google')">Google Play</button>
+                            <button class="payment-btn" onclick="selectPayment('dana')">DANA</button>
+                            <button class="payment-btn" onclick="selectPayment('gopay')">GoPay</button>
+                            <button class="payment-btn" onclick="selectPayment('ovo')">OVO</button>
+                            <button class="payment-btn" onclick="selectPayment('qris')">QRIS</button>
                         </div>
-                        
-                        <div class="topup-methods">
-                            <h3>Pilih Metode Pembayaran</h3>
-                            
-                            <div class="payment-methods">
-                                <div class="payment-method" data-method="googleplay">
-                                    <i class="fab fa-google-play"></i>
-                                    <span>Google Play Store</span>
-                                </div>
-                                
-                                <div class="payment-method" data-method="dana">
-                                    <i class="fas fa-wallet" style="color: #4AE5FF;"></i>
-                                    <span>DANA</span>
-                                </div>
-                                
-                                <div class="payment-method" data-method="gopay">
-                                    <i class="fas fa-wallet" style="color: #00AAFF;"></i>
-                                    <span>GoPay</span>
-                                </div>
-                                
-                                <div class="payment-method" data-method="ovo">
-                                    <i class="fas fa-wallet" style="color: #6600CC;"></i>
-                                    <span>OVO</span>
-                                </div>
-                                
-                                <div class="payment-method active" data-method="qris">
-                                    <i class="fas fa-qrcode"></i>
-                                    <span>QRIS (Semua)</span>
-                                </div>
+                        <div id="qrisSection" class="qris-section hidden">
+                            <img src="https://cdn.phototourl.com/uploads/2026-02-22-5f27c3d2-f1c9-4114-a8b7-aad3ddc4e5f3.jpg" alt="QRIS">
+                            <p>Scan dengan DANA/GoPay/OVO/m-Banking</p>
+                        </div>
+                        <div class="package-grid">
+                            <div class="package" onclick="buyCrystals(100)">
+                                <div>100 🔮</div>
+                                <div>Rp 15.000</div>
                             </div>
-                            
-                            <!-- QRIS Section -->
-                            <div id="qrisSection" class="payment-section active">
-                                <div class="qris-container">
-                                    <h4>Scan QRIS dengan DANA/GoPay/OVO/m-Banking</h4>
-                                    <div class="qris-image">
-                                        <img src="https://cdn.phototourl.com/uploads/2026-02-22-5f27c3d2-f1c9-4114-a8b7-aad3ddc4e5f3.jpg" alt="QRIS">
-                                    </div>
-                                    <p class="qris-info">Scan menggunakan aplikasi pembayaran</p>
-                                </div>
+                            <div class="package" onclick="buyCrystals(300)">
+                                <div>300 🔮</div>
+                                <div>Rp 40.000</div>
                             </div>
-                            
-                            <!-- Package Options -->
-                            <div class="package-options">
-                                <h3>Pilih Paket</h3>
-                                <div class="package-grid">
-                                    <div class="package-item" data-crystals="100" data-price="Rp 15.000">
-                                        <div class="package-amount">100 <i class="fas fa-gem"></i></div>
-                                        <div class="package-price">Rp 15.000</div>
-                                        <button class="buy-package">Beli</button>
-                                    </div>
-                                    <div class="package-item" data-crystals="300" data-price="Rp 40.000">
-                                        <div class="package-amount">300 <i class="fas fa-gem"></i></div>
-                                        <div class="package-price">Rp 40.000</div>
-                                        <button class="buy-package">Beli</button>
-                                    </div>
-                                    <div class="package-item" data-crystals="500" data-price="Rp 60.000">
-                                        <div class="package-amount">500 <i class="fas fa-gem"></i></div>
-                                        <div class="package-price">Rp 60.000</div>
-                                        <button class="buy-package">Beli</button>
-                                    </div>
-                                    <div class="package-item" data-crystals="1000" data-price="Rp 100.000">
-                                        <div class="package-amount">1000 <i class="fas fa-gem"></i></div>
-                                        <div class="package-price">Rp 100.000</div>
-                                        <button class="buy-package">Beli</button>
-                                    </div>
-                                </div>
+                            <div class="package" onclick="buyCrystals(500)">
+                                <div>500 🔮</div>
+                                <div>Rp 60.000</div>
+                            </div>
+                            <div class="package" onclick="buyCrystals(1000)">
+                                <div>1000 🔮</div>
+                                <div>Rp 100.000</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bundle Preview Modal -->
-                <div id="bundlePreview" class="bundle-preview hidden">
-                    <div class="preview-content">
-                        <h3 id="previewTitle">Bundle Preview</h3>
-                        <div id="previewImage" class="preview-image"></div>
-                        <div id="previewDescription" class="preview-description"></div>
-                        <div class="preview-rarity" id="previewRarity"></div>
-                        <button id="closePreview" class="close-preview">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Notification Toast -->
-                <div id="notificationToast" class="toast hidden">
-                    <div class="toast-content">
-                        <i class="fas fa-info-circle"></i>
-                        <span id="toastMessage"></span>
-                    </div>
-                </div>
+                <!-- Notification -->
+                <div id="notification" class="notification hidden"></div>
             </div>
         </div>
     </div>
-    
+
     <script src="game.js"></script>
 </body>
 </html>
